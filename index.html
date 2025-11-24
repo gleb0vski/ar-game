@@ -24,35 +24,54 @@
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
+            display: none;
+        }
+        
+        #startButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            font-size: 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            z-index: 1000;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image.prod.js"></script>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
 <body>
-    <a-scene 
-        mindar-image="imageTargetSrc: targets.mind;" 
-        embedded 
-        color-space="sRGB" 
-        renderer="colorManagement: true" 
-        vr-mode-ui="enabled: false" 
-        device-orientation-permission-ui="enabled: false">
-        
-        <a-assets>
-            <img id="robot" src="robot/Idle (1).png">
-            <img id="zombie" src="zombie/Idle (1).png">
-        </a-assets>
-
-        <a-camera active="false" position="0 0 0"></a-camera>
-
-        <a-entity mindar-image-target="targetIndex: 0">
-            <a-image src="#robot" position="0 0 0" width="1" height="1"></a-image>
-        </a-entity>
-        
-        <a-entity mindar-image-target="targetIndex: 1">
-            <a-image src="#zombie" position="0 0 0" width="1" height="1"></a-image>
-        </a-entity>
+    <button id="startButton" onclick="startAR()">START AR CAMERA</button>
+    
+    <a-scene id="arScene" embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false" style="display: none;">
+        <a-marker id="hero" type="pattern" url="qr1.patt">
+            <a-image src="robot/Idle (1).png" width="1" height="1" position="0 0.5 0"></a-image>
+        </a-marker>
+        <a-marker id="enemy" type="pattern" url="qr2.patt">
+            <a-image src="zombie/Idle (1).png" width="1" height="1" position="0 0.5 0"></a-image>
+        </a-marker>
+        <a-entity camera></a-entity>
     </a-scene>
+
+    <script>
+        function startAR() {
+            document.getElementById('startButton').style.display = 'none';
+            document.getElementById('arScene').style.display = 'block';
+            
+            // Явно запрашиваем камеру
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    console.log("Камера запущена");
+                })
+                .catch(function(error) {
+                    console.log("Ошибка камеры:", error);
+                    alert("Разрешите доступ к камере в настройках браузера");
+                });
+        }
+    </script>
 </body>
 </html>
