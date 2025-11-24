@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR JRPG Battle</title>
+    <title>AR Battle</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
             overflow: hidden;
+        }
+        
+        a-scene {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
         
         #battle-ui {
@@ -19,12 +26,14 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             padding: 15px;
             border-radius: 15px;
             color: white;
-            text-align: center;
             z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+            display: none;
         }
         
         .battle-buttons {
@@ -34,32 +43,25 @@
         }
         
         button {
-            padding: 10px 15px;
+            padding: 12px;
             font-size: 16px;
             border: none;
             border-radius: 8px;
-            cursor: pointer;
             background: #4CAF50;
             color: white;
-            transition: all 0.3s;
-        }
-        
-        button:hover {
-            background: #45a049;
-            transform: scale(1.05);
+            flex: 1;
         }
         
         button:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
+            background: #666;
         }
         
         .hp-bar {
-            width: 200px;
+            width: 100%;
             height: 20px;
             background: #333;
             border-radius: 10px;
-            margin: 5px auto;
+            margin: 5px 0;
             overflow: hidden;
         }
         
@@ -74,96 +76,33 @@
         }
         
         .battle-log {
-            max-height: 100px;
+            max-height: 80px;
             overflow-y: auto;
             font-size: 12px;
             margin-top: 10px;
         }
-        
-        #instructions {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            z-index: 1000;
-        }
-
-        #marker-status {
-            position: fixed;
-            top: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-            z-index: 1000;
-        }
-
-        a-scene {
-    width: 100vw !important;
-    height: 100vh !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-}
     </style>
 </head>
 <body>
-    <!-- AR Сцена -->
     <a-scene 
         embedded 
-         arjs="sourceType: webcam; debugUIEnabled: false; facingMode: environment;"
-        renderer="logarithmicDepthBuffer: true;"
-        vr-mode-ui="enabled: false">
-        
-        <!-- Маркер Робота (qr1.png) -->
-        <a-marker id="hero-marker" type="pattern" url="qr1.patt">
-            <a-entity position="0 0.5 0">
-                <a-plane id="hero-sprite"
-                         width="1" 
-                         height="1"
-                         position="0 0 0"
-                         material="src: #hero-texture; transparent: true; alphaTest: 0.5">
-                </a-plane>
-            </a-entity>
-            <a-text value="РОБОТ" position="0 1.2 0" align="center" color="blue" scale="2 2 2"></a-text>
+        arjs="sourceType: webcam; debugUIEnabled: false;" 
+        vr-mode-ui="enabled: false"
+    >
+        <a-marker id="hero-marker" preset="hiro">
+            <a-box position="0 0.5 0" color="blue"></a-box>
+            <a-text value="РОБОТ" position="0 1.2 0" align="center" color="blue"></a-text>
         </a-marker>
         
-        <!-- Маркер Зомби (qr2.png) -->
-        <a-marker id="enemy-marker" type="pattern" url="qr2.patt">
-            <a-entity position="0 0.5 0">
-                <a-plane id="enemy-sprite"
-                         width="1" 
-                         height="1"
-                         position="0 0 0"
-                         material="src: #enemy-texture; transparent: true; alphaTest: 0.5">
-                </a-plane>
-            </a-entity>
-            <a-text value="ЗОМБИ" position="0 1.2 0" align="center" color="green" scale="2 2 2"></a-text>
+        <a-marker id="enemy-marker" preset="kanji">
+            <a-box position="0 0.5 0" color="red"></a-box>
+            <a-text value="ЗОМБИ" position="0 1.2 0" align="center" color="red"></a-text>
         </a-marker>
         
         <a-entity camera></a-entity>
     </a-scene>
-    
-    <!-- Инструкции -->
-    <div id="instructions">
-        <h3>🎮 AR JRPG Битва</h3>
-        <p>Наведите камеру на оба QR-кода чтобы начать бой!</p>
-    </div>
 
-    <div id="marker-status">
-        <div>Робот: <span id="hero-status">❌ Не найден</span></div>
-        <div>Зомби: <span id="enemy-status">❌ Не найден</span></div>
-    </div>
-    
-    <!-- Интерфейс боя -->
-    <div id="battle-ui" style="display: none;">
+    <div id="battle-ui">
         <div class="hp-display">
             <div>Робот: <span id="hero-hp">100</span>/100</div>
             <div class="hp-bar">
@@ -182,124 +121,9 @@
             <button onclick="battle.heal()" id="heal-btn">❤️ Лечение</button>
         </div>
         
-        <div class="battle-log" id="battle-log">
-            <!-- Лог битвы будет здесь -->
-        </div>
+        <div class="battle-log" id="battle-log"></div>
     </div>
 
-    <video id="video" width="300" height="300" autoplay></video>
-<script>
-navigator.mediaDevices.getUserMedia({video: true})
-    .then(stream => {
-        document.getElementById('video').srcObject = stream;
-    })
-    .catch(err => {
-        alert('Ошибка камеры: ' + err.message);
-    });
-</script>
-
-    <!-- Текстуры для спрайтов -->
-    <script>
-        // Создаем текстуры из ваших спрайтов
-        async function createSpriteTexture(imagePaths, defaultColor) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Размеры спрайт-листа
-            const frameWidth = 100;
-            const frameHeight = 100;
-            const cols = 4;
-            
-            try {
-                // Загружаем первое изображение для определения размеров
-                const firstImage = await loadImage(imagePaths[0]);
-                const actualFrameWidth = firstImage.width;
-                const actualFrameHeight = firstImage.height;
-                
-                const rows = Math.ceil(imagePaths.length / cols);
-                canvas.width = cols * actualFrameWidth;
-                canvas.height = rows * actualFrameHeight;
-                
-                // Очищаем canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Загружаем и рисуем все изображения
-                for (let i = 0; i < imagePaths.length; i++) {
-                    const img = await loadImage(imagePaths[i]);
-                    const col = i % cols;
-                    const row = Math.floor(i / cols);
-                    const x = col * actualFrameWidth;
-                    const y = row * actualFrameHeight;
-                    
-                    ctx.drawImage(img, x, y, actualFrameWidth, actualFrameHeight);
-                }
-                
-                console.log(`Спрайт-лист создан: ${imagePaths.length} кадров`);
-                return new THREE.CanvasTexture(canvas);
-                
-            } catch (error) {
-                console.error('Ошибка создания текстуры:', error);
-                // Fallback - простая цветная текстура
-                canvas.width = 100;
-                canvas.height = 100;
-                ctx.fillStyle = defaultColor;
-                ctx.fillRect(0, 0, 100, 100);
-                return new THREE.CanvasTexture(canvas);
-            }
-        }
-
-        function loadImage(src) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = () => resolve(img);
-                img.onerror = () => reject(new Error(`Не удалось загрузить: ${src}`));
-                img.src = src;
-            });
-        }
-
-        // Создаем текстуры при загрузке страницы
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                // Создаем пути к спрайтам робота
-                const robotPaths = [];
-                for (let i = 1; i <= 10; i++) {
-                    robotPaths.push(`robot/Idle (${i}).png`);
-                }
-
-                // Создаем пути к спрайтам зомби
-                const zombiePaths = [];
-                for (let i = 1; i <= 15; i++) {
-                    zombiePaths.push(`zombie/Idle (${i}).png`);
-                }
-
-                // Создаем текстуры
-                const heroTexture = await createSpriteTexture(robotPaths, '#3498db');
-                const enemyTexture = await createSpriteTexture(zombiePaths, '#e74c3c');
-
-                // Добавляем текстуры в сцену
-                const scene = document.querySelector('a-scene');
-                scene.addEventListener('loaded', function() {
-                    const heroPlane = document.getElementById('hero-sprite');
-                    const enemyPlane = document.getElementById('enemy-sprite');
-                    
-                    if (heroPlane && heroPlane.object3D) {
-                        heroPlane.object3D.children[0].material.map = heroTexture;
-                        heroPlane.object3D.children[0].material.needsUpdate = true;
-                    }
-                    
-                    if (enemyPlane && enemyPlane.object3D) {
-                        enemyPlane.object3D.children[0].material.map = enemyTexture;
-                        enemyPlane.object3D.children[0].material.needsUpdate = true;
-                    }
-                });
-
-            } catch (error) {
-                console.error('Ошибка инициализации текстур:', error);
-            }
-        });
-    </script>
-    
-    <!-- Логика игры -->
     <script>
         class BattleSystem {
             constructor() {
@@ -315,7 +139,7 @@ navigator.mediaDevices.getUserMedia({video: true})
                 
                 const damage = Math.floor(Math.random() * 20) + 10;
                 this.enemyHP = Math.max(0, this.enemyHP - damage);
-                this.addToLog(`⚔️ Робот атакует и наносит ${damage} урона!`);
+                this.addToLog(`⚔️ Робот атакует: ${damage} урона!`);
                 this.updateUI();
                 this.endPlayerTurn();
             }
@@ -324,7 +148,7 @@ navigator.mediaDevices.getUserMedia({video: true})
                 if (!this.isPlayerTurn || !this.isBattleActive) return;
                 
                 this.heroDefending = true;
-                this.addToLog(`🛡️ Робот защищается! Следующая атака будет слабее.`);
+                this.addToLog(`🛡️ Робот защищается!`);
                 this.endPlayerTurn();
             }
             
@@ -333,7 +157,7 @@ navigator.mediaDevices.getUserMedia({video: true})
                 
                 const healAmount = Math.floor(Math.random() * 15) + 10;
                 this.heroHP = Math.min(100, this.heroHP + healAmount);
-                this.addToLog(`❤️ Робот лечится на ${healAmount} HP!`);
+                this.addToLog(`❤️ Робот лечится: +${healAmount} HP!`);
                 this.updateUI();
                 this.endPlayerTurn();
             }
@@ -341,8 +165,6 @@ navigator.mediaDevices.getUserMedia({video: true})
             endPlayerTurn() {
                 this.isPlayerTurn = false;
                 this.disableButtons();
-                
-                // Ход врага через секунду
                 setTimeout(() => this.enemyTurn(), 1000);
             }
             
@@ -353,18 +175,15 @@ navigator.mediaDevices.getUserMedia({video: true})
                 let enemyDamageReduction = this.heroDefending ? 0.5 : 1;
                 
                 if (enemyAction < 0.6) {
-                    // Враг атакует
                     const damage = Math.floor((Math.random() * 15 + 5) * enemyDamageReduction);
                     this.heroHP = Math.max(0, this.heroHP - damage);
-                    this.addToLog(`👹 Зомби атакует и наносит ${damage} урона!`);
+                    this.addToLog(`👹 Зомби атакует: ${damage} урона!`);
                 } else if (enemyAction < 0.8) {
-                    // Враг защищается
                     this.addToLog(`👹 Зомби защищается!`);
                 } else {
-                    // Враг лечится
                     const healAmount = Math.floor(Math.random() * 10) + 5;
                     this.enemyHP = Math.min(100, this.enemyHP + healAmount);
-                    this.addToLog(`👹 Зомби лечится на ${healAmount} HP!`);
+                    this.addToLog(`👹 Зомби лечится: +${healAmount} HP!`);
                 }
                 
                 this.heroDefending = false;
@@ -407,11 +226,11 @@ navigator.mediaDevices.getUserMedia({video: true})
             checkBattleEnd() {
                 if (this.heroHP <= 0) {
                     this.isBattleActive = false;
-                    this.addToLog('💀 Робот побежден! Игра окончена.');
+                    this.addToLog('💀 Робот побежден!');
                     this.disableButtons();
                 } else if (this.enemyHP <= 0) {
                     this.isBattleActive = false;
-                    this.addToLog('🎉 Зомби побежден! Победа!');
+                    this.addToLog('🎉 Зомби побежден!');
                     this.disableButtons();
                 }
             }
@@ -427,7 +246,7 @@ navigator.mediaDevices.getUserMedia({video: true})
                 
                 document.getElementById('battle-ui').style.display = 'block';
                 document.getElementById('battle-log').innerHTML = '';
-                this.addToLog('⚔️ Битва началась! Робот vs Зомби!');
+                this.addToLog('⚔️ Битва началась!');
                 this.updateUI();
                 this.enableButtons();
             }
@@ -435,7 +254,6 @@ navigator.mediaDevices.getUserMedia({video: true})
         
         const battle = new BattleSystem();
         
-        // Отслеживаем маркеры
         let heroFound = false;
         let enemyFound = false;
         
@@ -445,12 +263,8 @@ navigator.mediaDevices.getUserMedia({video: true})
             scene.addEventListener('markerFound', function(e) {
                 if (e.target.id === 'hero-marker') {
                     heroFound = true;
-                    document.getElementById('hero-status').textContent = '✅ Найден';
-                    document.getElementById('hero-status').style.color = 'green';
                 } else if (e.target.id === 'enemy-marker') {
                     enemyFound = true;
-                    document.getElementById('enemy-status').textContent = '✅ Найден';
-                    document.getElementById('enemy-status').style.color = 'green';
                 }
                 
                 if (heroFound && enemyFound && !battle.isBattleActive) {
@@ -461,12 +275,8 @@ navigator.mediaDevices.getUserMedia({video: true})
             scene.addEventListener('markerLost', function(e) {
                 if (e.target.id === 'hero-marker') {
                     heroFound = false;
-                    document.getElementById('hero-status').textContent = '❌ Не найден';
-                    document.getElementById('hero-status').style.color = 'red';
                 } else if (e.target.id === 'enemy-marker') {
                     enemyFound = false;
-                    document.getElementById('enemy-status').textContent = '❌ Не найден';
-                    document.getElementById('enemy-status').style.color = 'red';
                 }
             });
         });
