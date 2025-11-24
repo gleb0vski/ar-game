@@ -40,7 +40,6 @@
 <body>
     <button id="startBtn" onclick="startAR()">🎮 START AR BATTLE</button>
 
-    <!-- Сцена изначально скрыта -->
     <a-scene id="arScene" 
              embedded 
              arjs="sourceType: webcam; debugUIEnabled: false;" 
@@ -50,9 +49,10 @@
         <!-- Маркер 1 - Робот -->
         <a-marker type="pattern" url="qr1.patt">
             <a-image src="robot/Idle (1).png" 
-                     width="1" 
-                     height="1" 
-                     position="0 0.5 0"
+                     width="3" 
+                     height="3" 
+                     position="0 1.5 0"
+                     look-at="[camera]"
                      animation="property: rotation; to: 0 360 0; loop: true; dur: 4000">
             </a-image>
         </a-marker>
@@ -60,10 +60,11 @@
         <!-- Маркер 2 - Зомби -->
         <a-marker type="pattern" url="qr2.patt">
             <a-image src="zombie/Idle (1).png" 
-                     width="1" 
-                     height="1" 
-                     position="0 0.5 0"
-                     animation="property: position; to: 0 0.7 0; dir: alternate; loop: true; dur: 2000">
+                     width="3" 
+                     height="3" 
+                     position="0 1.5 0"
+                     look-at="[camera]"
+                     animation="property: position; to: 0 2.1 0; dir: alternate; loop: true; dur: 2000">
             </a-image>
         </a-marker>
         
