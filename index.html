@@ -3,16 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Test</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <title>AR Battle</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsartoolkit5@0.0.4/build/artoolkit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsartoolkit5@0.0.4/build/artoolkit.api.js"></script>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; }
+        #video { width: 100vw; height: 100vh; object-fit: cover; }
+        #canvas { display: none; }
+    </style>
 </head>
 <body>
-    <a-scene embedded arjs>
-        <a-marker type="pattern" url="qr1.patt">
-            <a-image src="robot/Idle (1).png" width="1" height="1" position="0 0.5 0"></a-image>
-        </a-marker>
-        <a-entity camera></a-entity>
-    </a-scene>
+    <video id="video" autoplay></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // 1. Настройка основной камеры
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'environment',
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            } 
+        }).then(function(stream) {
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+            
+            // 2. Инициализация AR
+            initAR(video);
+        });
+
+        function initAR(video) {
+            // 3. Загрузка маркеров
+            const markerRoot = new ARController(video.width, video.height);
+            
+            // Загружаем твои паттерны
+            markerRoot.loadMarker('qr1.patt', function(markerId) {
+                console.log('Маркер 1 загружен:', markerId);
+            });
+            
+            markerRoot.loadMarker('qr2.patt', function(markerId) {
+                console.log('Маркер 2 загружен:', markerId);
+            });
+
+            // 4. Создание 3D сцены
+            const scene = new THREE.Scene();
+            const camera = new THREE.Camera();
+            scene.add(camera);
+
+            // 5. Загрузка спрайтов
+            const loader = new THREE.TextureLoader();
+            
+            // Первый кадр робота
+            loader.load('robot/Idle (1).png', function(texture) {
+                const material = new THREE.SpriteMaterial({ map: texture });
+                const sprite = new THREE.Sprite(material);
+                sprite.scale.set(1, 1, 1);
+                scene.add(sprite);
+            });
+
+            // Первый кадр зомби  
+            loader.load('zombie/Idle (1).png', function(texture) {
+                const material = new THREE.SpriteMaterial({ map: texture });
+                const sprite = new THREE.Sprite(material);
+                sprite.scale.set(1, 1, 1);
+                scene.add(sprite);
+            });
+
+            // 6. Рендер-луп
+            function render() {
+                requestAnimationFrame(render);
+                // Здесь будет отслеживание маркеров и позиционирование спрайтов
+            }
+            render();
+        }
+    </script>
 </body>
 </html>
