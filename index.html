@@ -4,12 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AR Battle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+        }
+        
+        a-scene {
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image.prod.js"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
 </head>
 <body>
-    <a-scene mindar-image="imageTargetSrc: https://raw.githubusercontent.com/gleb0vski/ar-game/main/targets.mind;" embedded color-space="sRGB" renderer="colorManagement: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene 
+        mindar-image="imageTargetSrc: targets.mind;" 
+        embedded 
+        color-space="sRGB" 
+        renderer="colorManagement: true" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
+        
         <a-assets>
             <img id="robot" src="robot/Idle (1).png">
             <img id="zombie" src="zombie/Idle (1).png">
