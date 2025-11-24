@@ -1,81 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Battle</title>
-    <script src="https://cdn.8thwall.com/web/aframe/8frame-1.5.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe@1.7.1/dist/aframe-master.min.js"></script>
-    <script src="https://cdn.8thwall.com/web/xrextras/xrextras.js"></script>
-    <style>
-        body { margin: 0; padding: 0; overflow: hidden; }
-        a-scene { width: 100vw; height: 100vh; }
-    </style>
-</head>
-<body>
-    <xr-scene 
-        xr-mode="camera" 
-        xr-environment 
-        xr-face-camera="false"
-        xr-run="onxrloaded"
+<script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+
+<style>
+  .arjs-loader {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .arjs-loader div {
+    text-align: center;
+    font-size: 1.25em;
+    color: white;
+  }
+</style>
+
+<body style="margin : 0px; overflow: hidden;">
+  <!-- minimal loader shown until image descriptors are loaded -->
+  <div class="arjs-loader">
+    <div>Loading, please wait...</div>
+  </div>
+  <a-scene
+    vr-mode-ui="enabled: false;"
+    renderer="logarithmicDepthBuffer: true;"
+    embedded
+    arjs="trackingMethod: best; sourceType: webcam;debugUIEnabled: false;"
+  >
+    <a-nft
+      type="nft"
+      url="https://raw.githack.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex/trex-image/trex"
+      smooth="true"
+      smoothCount="10"
+      smoothTolerance=".01"
+      smoothThreshold="5"
     >
-        <!-- Маркер 1 - Робот -->
-        <xr-image-target 
-            src="qr1.png" 
-            found="onTargetFound1" 
-            lost="onTargetLost1"
-        >
-            <a-image 
-                id="robot-sprite" 
-                src="robot/Idle (1).png" 
-                width="1" 
-                height="1"
-                position="0 0.5 0"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 3000"
-            ></a-image>
-        </xr-image-target>
-
-        <!-- Маркер 2 - Зомби -->
-        <xr-image-target 
-            src="qr2.png" 
-            found="onTargetFound2" 
-            lost="onTargetLost2"
-        >
-            <a-image 
-                id="zombie-sprite" 
-                src="zombie/Idle (1).png" 
-                width="1" 
-                height="1"
-                position="0 0.5 0"
-                animation="property: position; to: 0 0.7 0; dir: alternate; loop: true; dur: 1000"
-            ></a-image>
-        </xr-image-target>
-
-        <a-camera position="0 0 0"></a-camera>
-    </xr-scene>
-
-    <script>
-        function onxrloaded() {
-            console.log('8th Wall загружен');
-        }
-
-        function onTargetFound1() {
-            console.log('Маркер 1 найден - Робот');
-            document.getElementById('robot-sprite').setAttribute('visible', true);
-        }
-
-        function onTargetLost1() {
-            document.getElementById('robot-sprite').setAttribute('visible', false);
-        }
-
-        function onTargetFound2() {
-            console.log('Маркер 2 найден - Зомби');
-            document.getElementById('zombie-sprite').setAttribute('visible', true);
-        }
-
-        function onTargetLost2() {
-            document.getElementById('zombie-sprite').setAttribute('visible', false);
-        }
-    </script>
+      <a-entity
+        gltf-model="https://raw.githack.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex/scene.gltf"
+        scale="5 5 5"
+        position="50 150 0"
+      >
+      </a-entity>
+    </a-nft>
+    <a-entity camera></a-entity>
+  </a-scene>
 </body>
-</html>
