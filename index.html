@@ -104,13 +104,21 @@
             border-radius: 8px;
             z-index: 1000;
         }
+
+        a-scene {
+    width: 100vw !important;
+    height: 100vh !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+}
     </style>
 </head>
 <body>
     <!-- AR Сцена -->
     <a-scene 
         embedded 
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        arjs="sourceType: webcam; debugUIEnabled: facingMode: environment; false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
         renderer="logarithmicDepthBuffer: true;"
         vr-mode-ui="enabled: false">
         
